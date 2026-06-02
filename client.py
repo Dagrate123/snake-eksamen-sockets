@@ -31,9 +31,11 @@ def receive():
                 break
 
             length = struct.unpack('!T', header)[0]
-            data = client.recv(lenth)
+            data = client.recv(length)
 
             game_state = json.loads(data.decode())
+
+            print("STATE:", game_state) 
 
         except:
             break 
