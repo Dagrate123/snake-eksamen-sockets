@@ -41,7 +41,7 @@ def receive():
 pygame.init()
 
 Client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-Client.connect(("127.0.0.1", 5555))
+Client.connect(("193.156.153.236", 39935))
 
 threading.Thread(target=receive, daemon=True).start()
 
