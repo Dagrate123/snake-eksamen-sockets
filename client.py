@@ -12,7 +12,7 @@ def receive():
 
     while True:
         try:
-            header = client.recv(4)
+            header = Client.recv(4)
             if not header:
                 break
 
@@ -40,8 +40,6 @@ header = struct.pack('!I', len(data_bytes))
 
 Client.sendall(header + data_bytes)
 print("data sent")
-
-threading.Thread(target=receive, daemon=True).start()
 
 screen_width = 800
 screen_height = 600
