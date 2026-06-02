@@ -7,20 +7,6 @@ import threading
 
 game_state = {}
 
-pygame.init()
-
-Client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-Client.connect(("127.0.0.1", 5555))
-
-data = {"user_id": 1337, "command": "auth", "token": "abcde123"}
-
-data_bytes = json.dumps(data).encode('utf-8')
-
-header = struct.pack('!I', len(data_bytes))
-
-Client.sendall(header + data_bytes)
-print("data sent")
-
 def receive():
     global game_state
 
@@ -30,7 +16,7 @@ def receive():
             if not header:
                 break
 
-            length = struct.unpack('!T', header)[0]
+            length = struct.unpack('!I', header)[0]
             data = client.recv(length)
 
             game_state = json.loads(data.decode())
@@ -39,6 +25,21 @@ def receive():
 
         except:
             break 
+
+pygame.init()
+
+Client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+Client.connect(("127.0.0.1", 5555))
+threading.Thread(target=receive, daemon=True).start()
+
+data = {"user_id": 1337, "command": "auth", "token": "abcde123"}
+
+data_bytes = json.dumps(data).encode('utf-8')
+
+header = struct.pack('!I', len(data_bytes))
+
+Client.sendall(header + data_bytes)
+print("data sent")
 
 threading.Thread(target=receive, daemon=True).start()
 
