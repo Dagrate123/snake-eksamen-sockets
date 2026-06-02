@@ -89,4 +89,16 @@ def game_loop():
 
         broadcast()
         time.sleep(0.2)
+
+        screen.fill((255, 255, 255))
+
+        for player_id, player in game_state.items():
+            pygame.draw.rect(screen(0, 255, 0), pygame.Rect(player["x"], player["y"], 20, 20))
+
+        my_id = "0"  # example, you should get this from server later
+
+        for player_id, player in game_state.items():
+            color = (0, 255, 0) if player_id != my_id else (0, 0, 255)
+            pygame.draw.rect(screen, color, (player["x"], player["y"], 20, 20))
+
 threading.Thread(target=game_loop, daemon=True).start()

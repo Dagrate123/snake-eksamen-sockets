@@ -3,6 +3,9 @@ import json
 import struct
 import pygame
 import random
+import threading
+
+game_state = {}
 
 pygame.init()
 
@@ -17,6 +20,25 @@ header = struct.pack('!I', len(data_bytes))
 
 Client.sendall(header + data_bytes)
 print("data sent")
+
+def receive():
+    global game_state
+
+    while True:
+        try:
+            header = client.recv(4)
+            if not header:
+                break
+
+            length = struct.unpack('!T', header)[0]
+            data = client.recv(lenth)
+
+            game_state = json.loads(data.decode())
+
+        except:
+            break 
+
+threading.Thread(target=receive, daemon=True).start()
 
 screen_width = 800
 screen_height = 600
