@@ -4,8 +4,9 @@ import struct
 import json
 import time
 
-Clients = [] #array der alle klienter blir lagt til 
+Clients = []
 Players = {}
+ConnToID = {}
 
 def recv_exact(conn, length):
     data = b""
@@ -16,64 +17,44 @@ def recv_exact(conn, length):
         data += packet
     return data
 
-def handle_clients(conn, addr): #når klienten stopper å sende info så disconnecter klienten
+
+def handle_clients(conn, addr):
     print("client connected", addr)
+
+    player_id = str(addr)
+    ConnToID[conn] = player_id
+
+    Players[player_id] = {
+        "x": 100,
+        "y": 100,
+        "dir": "RIGHT",
+        "Alive": True
+    }
+
     while True:
-        try: 
+        try:
             header = recv_exact(conn, 4)
             if not header:
                 break
+
             length = struct.unpack("!I", header)[0]
             raw = recv_exact(conn, length)
             if raw is None:
                 break
+
             message = json.loads(raw.decode())
-            print("RAW DATA:", message)
+
             if message["command"] == "move":
-                direction = message["dir"]
-                Players[conn]["dir"] = direction
-            if not message:
-                break
+                Players[player_id]["dir"] = message["dir"]
+
         except:
             break
 
     print("client disconnected")
-    del Players[conn]
     Clients.remove(conn)
+    del Players[player_id]
     conn.close()
 
-def get_state():
-    return {
-        str(id(conn)): data
-        for conn, data in Players.items()
-    }
-
-def broadcast():
-    state = json.dumps(get_state()).encode()
-    header = struct.pack("!I", len(state))
-
-    for c in Clients:
-        try:
-            c.sendall(header + state)
-        except:
-            pass
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("0.0.0.0", 5555))
-server.listen()
-
-print("server running")
-
-while True:
-    conn, addr = server.accept()
-    Clients.append(conn)
-    Players[conn] = {
-        "x": 5,
-        "y": 5,
-        "dir": "RIGHT",
-        "Alive": True
-    }
-    threading.Thread(target=handle_clients, args=(conn, addr)).start()
 
 def game_loop():
     while True:
@@ -87,18 +68,27 @@ def game_loop():
             elif player["dir"] == "RIGHT":
                 player["x"] += 20
 
-        broadcast()
+        state = json.dumps(Players).encode()
+        header = struct.pack("!I", len(state))
+
+        for c in Clients:
+            try:
+                c.sendall(header + state)
+            except:
+                pass
+
         time.sleep(0.2)
 
-        screen.fill((255, 255, 255))
 
-        for player_id, player in game_state.items():
-            pygame.draw.rect(screen(0, 255, 0), pygame.Rect(player["x"], player["y"], 20, 20))
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(("0.0.0.0", 5555))
+server.listen()
 
-        my_id = "0"  # example, you should get this from server later
-
-        for player_id, player in game_state.items():
-            color = (0, 255, 0) if player_id != my_id else (0, 0, 255)
-            pygame.draw.rect(screen, color, (player["x"], player["y"], 20, 20))
+print("server running")
 
 threading.Thread(target=game_loop, daemon=True).start()
+
+while True:
+    conn, addr = server.accept()
+    Clients.append(conn)
+    threading.Thread(target=handle_clients, args=(conn, addr)).start()
