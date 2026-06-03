@@ -92,8 +92,10 @@ def game_loop():
 
             ate = False
             if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
+                print(f"Player {player_id} ate the apple")
                 APPLE = spawn_apple()
                 ate = True
+
 
             if not ate:
                 body.pop()
@@ -102,8 +104,10 @@ def game_loop():
                 if other_id == player_id:
                     continue
 
-                if player["x"] == other["x"] and player["y"] == other["y"]:
-                    print("player collision")
+            for segment in other["body"]:
+                if player["x"] == segment["x"] and player["y"] == segment["y"]:
+                    print(f"Player {player_id} hit player {other_id}'s body")
+                    break
 
             player["x"] %= 800
             player["y"] %= 600
