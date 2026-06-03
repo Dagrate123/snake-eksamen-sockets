@@ -42,7 +42,7 @@ def receive(): #unpacker dataen
 pygame.init()
 
 Client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #vi bruker ipv4 sockets og tcp sockets
-Client.connect(("192.168.20.74", 5556))
+Client.connect(("192.168.20.74", 5555))
 
 threading.Thread(target=receive, daemon=True).start()
 
