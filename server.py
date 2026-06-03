@@ -91,7 +91,7 @@ def game_loop():
             body.insert(0, {"x": old_x, "y": old_y})
 
             ate = False
-            if Players["x"] == APPLE["x"] and Players["y"] == APPLE["y"]:
+            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
                 APPLE = spawn_apple()
                 ate = True
 
