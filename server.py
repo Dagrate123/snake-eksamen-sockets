@@ -71,15 +71,14 @@ def handle_clients(conn, addr):
     conn.close()
 
 
-def game_loop(): #game_loop 
+def game_loop():
     global APPLE
 
     while True:
+            old_x = player["x"]
+            old_y = player["y"]
 
-        old_x = player["x"]
-        old_y = player["y"]
-
-        for player in Players.values():
+            # MOVE
             if player["dir"] == "UP":
                 player["y"] -= 20
             elif player["dir"] == "DOWN":
@@ -89,25 +88,22 @@ def game_loop(): #game_loop
             elif player["dir"] == "RIGHT":
                 player["x"] += 20
 
-        if len(player["body"]) > 0:    
-            player["body"].insert(0, {"x": old_x, "y": old_y})    
-            player["body"].pop()
+            if "body" not in player:
+                player["body"] = []
 
-            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]: #sjekker om spillerne kan spise eple 
+            body = player["body"]
+
+            if len(body) > 0:
+                body.insert(0, {"x": old_x, "y": old_y})
+                body.pop()
+
+            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
                 APPLE = spawn_apple()
                 print("apple eaten!")
 
+                body.append({"x": old_x, "y": old_y})
 
-            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:    
-                APPLE = spawn_apple()    
-                player["body"].append({"x": old_x,"y": old_y})
-
-                snake_body = []
-                data = json.dumps(snake_body).encode()
-                header = struct.pack("!I", len(data))
-                Client.sendall(header + data)
-
-            player["x"] %= 800 #screeen wrapping(kun for debugging) husk å legge til at hvis y eller x til player er over skjermen så dør den
+            player["x"] %= 800
             player["y"] %= 600
 
         state = {
@@ -115,7 +111,7 @@ def game_loop(): #game_loop
             "apple": APPLE
         }
 
-        data = json.dumps(state).encode() #pakker dataen for å sende 
+        data = json.dumps(state).encode()
         header = struct.pack("!I", len(data))
 
         for c in Clients:
