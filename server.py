@@ -92,7 +92,7 @@ def game_loop():
 
             ate = False
             if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
-                print(f"spiller {player_id} har spist masse epler")
+                print(f"spiller {player_id} har spist eple")
                 APPLE = spawn_apple()
                 ate = True
 
@@ -106,7 +106,7 @@ def game_loop():
 
             for segment in other["body"]:
                 if player["x"] == segment["x"] and player["y"] == segment["y"]:
-                    print(f"Player {player_id} hit player {other_id}'s body")
+                    print(f"spiller {player_id} traff spiller {other_id}'s kropp")
                     break
 
             player["x"] %= 800
