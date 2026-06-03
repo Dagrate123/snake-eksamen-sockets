@@ -92,7 +92,7 @@ def game_loop():
 
             ate = False
             if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
-                print(f"Player {player_id} ate the apple")
+                print(f"spiller {player_id} har spist masse epler")
                 APPLE = spawn_apple()
                 ate = True
 
