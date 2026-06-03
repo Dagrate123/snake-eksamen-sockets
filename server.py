@@ -75,6 +75,8 @@ def game_loop():
     global APPLE
 
     while True:
+        for player_id, player in Players.items():
+
             old_x = player["x"]
             old_y = player["y"]
 
