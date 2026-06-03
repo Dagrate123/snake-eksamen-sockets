@@ -87,14 +87,14 @@ while True:
         snake_body[0].x = player.rect.x
         snake_body[0].y = player.rect.y      
 
-    if (
-        player.rect.x < 0 or
-        player.rect.x >= screen_width or
-        player.rect.y < 0 or
-        player.rect.y >= screen_height
-    ):
-
-        save_score(score)
+    for pid, p in players.items():
+        if (
+            p["x"] < 0 or
+            p["x"] >= 800 or
+            p["y"] < 0 or
+            p["y"] >= 600
+        ):
+            print("spiller utafor mappet")
 
     for pid, p in players.items():
         for segment in p.get("snake_body", []):
