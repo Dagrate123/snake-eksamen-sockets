@@ -76,11 +76,8 @@ def game_loop():
 
     while True:
         for player_id, player in Players.items():
+            old_x, old_y = player["x"], player["y"]
 
-            old_x = player["x"]
-            old_y = player["y"]
-
-            # MOVE
             if player["dir"] == "UP":
                 player["y"] -= 20
             elif player["dir"] == "DOWN":
@@ -91,17 +88,14 @@ def game_loop():
                 player["x"] += 20
 
             body = player["body"]
+            body.insert(0, {"x": old_x, "y": old_y})
 
-            if len(body) > 0:
-                body.insert(0, {"x": old_x, "y": old_y})
-                ate = False
-
+            ate = False
             if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
                 APPLE = spawn_apple()
-                print("apple eaten!")
                 ate = True
 
-            if len(body) > 0 and not ate:
+            if not ate:
                 body.pop()
 
             player["x"] %= 800

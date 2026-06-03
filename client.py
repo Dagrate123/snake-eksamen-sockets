@@ -97,7 +97,7 @@ while True:
             print("spiller utafor mappet")
 
     for pid, p in players.items():
-        for segment in p.get("snake_body", []):
+        for segment in p.get("body", []):
             pygame.draw.rect(
                 screen,
                 (0, 200, 0),
