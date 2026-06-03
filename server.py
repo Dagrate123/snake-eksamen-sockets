@@ -43,7 +43,7 @@ def handle_clients(conn, addr):
         "y": 100,
         "dir": "RIGHT",
         "Alive": True,
-        "snake_body:": []
+        "body:": []
     }
 
     while True: #reciever dataen om hvilken vei hver player skal bevege seg og hvis spilleren stopper å sende data til loopen så disconnecter spilleren
