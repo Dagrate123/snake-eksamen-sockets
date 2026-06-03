@@ -98,6 +98,13 @@ def game_loop():
             if not ate:
                 body.pop()
 
+            for other_id, other in Players.items():
+                if other_id == player_id:
+                    continue
+
+                if player["x"] == other["x"] and player["y"] == other["y"]:
+                    print("player collision")
+
             player["x"] %= 800
             player["y"] %= 600
 
