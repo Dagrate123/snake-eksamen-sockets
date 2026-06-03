@@ -9,7 +9,7 @@ Clients = []
 Players = {}
 ConnToID = {}
 
-APPLE = { #kalkulerer apple spawn poinnt 
+APPLE = { #randomizer apple spawn poinnt 
     "x": random.randint(0, 39) * 20,
     "y": random.randint(0, 29) * 20
 }
@@ -42,7 +42,8 @@ def handle_clients(conn, addr):
         "x": 100,
         "y": 100,
         "dir": "RIGHT",
-        "Alive": True
+        "Alive": True,
+        "snake_body:": []
     }
 
     while True: #reciever dataen om hvilken vei hver player skal bevege seg og hvis spilleren stopper å sende data til loopen så disconnecter spilleren
@@ -74,6 +75,10 @@ def game_loop(): #game_loop
     global APPLE
 
     while True:
+
+        old_x = player["x"]
+        old_y = player["y"]
+
         for player in Players.values():
             if player["dir"] == "UP":
                 player["y"] -= 20
@@ -84,11 +89,25 @@ def game_loop(): #game_loop
             elif player["dir"] == "RIGHT":
                 player["x"] += 20
 
-            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]: #sjekker om begge spillerne kan spise eple 
+        if len(player["body"]) > 0:    
+            player["body"].insert(0, {"x": old_x, "y": old_y})    
+            player["body"].pop()
+
+            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]: #sjekker om spillerne kan spise eple 
                 APPLE = spawn_apple()
                 print("apple eaten!")
 
-            player["x"] %= 800 #ikke gå ut av mappe
+
+            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:    
+                APPLE = spawn_apple()    
+                player["body"].append({"x": old_x,"y": old_y})
+
+                snake_body = []
+                data = json.dumps(snake_body).encode()
+                header = struct.pack("!I", len(data))
+                Client.sendall(header + data)
+
+            player["x"] %= 800 #screeen wrapping(kun for debugging) husk å legge til at hvis y eller x til player er over skjermen så dør den
             player["y"] %= 600
 
         state = {

@@ -75,7 +75,35 @@ while True:
     players = game_state.get("players", {})
     apple = game_state.get("apple", None)
 
+    snake_body = []
+
+    for i in range(len(snake_body) - 1, 0, -1):
+        
+        snake_body[i].x = snake_body[i - 1].x
+        snake_body[i].y = snake_body[i - 1].y  
+
+    if len(snake_body) > 0:
+
+        snake_body[0].x = player.rect.x
+        snake_body[0].y = player.rect.y      
+
+    if (
+        player.rect.x < 0 or
+        player.rect.x >= screen_width or
+        player.rect.y < 0 or
+        player.rect.y >= screen_height
+    ):
+
+        save_score(score)
+
     for pid, p in players.items():
+        for segment in p.get("snake_body", []):
+            pygame.draw.rect(
+                screen,
+                (0, 200, 0),
+                pygame.Rect(segment["x"], segment["y"], 20, 20)
+            )
+
         pygame.draw.rect(
             screen,
             (0, 255, 0),
