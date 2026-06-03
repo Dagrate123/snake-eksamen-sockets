@@ -109,8 +109,10 @@ def game_loop():
                     print(f"spiller {player_id} traff spiller {other_id}'s kropp")
                     break
 
-            player["x"] %= 800
-            player["y"] %= 600
+            if player["x"] >= 800 or player["x"] <= 0:
+                print("death")
+            if player["y"] >= 600 or player["y"] <= 0:
+                print("death")
 
         state = {
             "players": Players,
