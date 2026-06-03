@@ -90,20 +90,19 @@ def game_loop():
             elif player["dir"] == "RIGHT":
                 player["x"] += 20
 
-            if "body" not in player:
-                player["body"] = []
-
             body = player["body"]
 
             if len(body) > 0:
                 body.insert(0, {"x": old_x, "y": old_y})
-                body.pop()
+                ate = False
 
             if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
                 APPLE = spawn_apple()
                 print("apple eaten!")
+                ate = True
 
-                body.append({"x": old_x, "y": old_y})
+            if len(body) > 0 and not ate:
+                body.pop()
 
             player["x"] %= 800
             player["y"] %= 600
