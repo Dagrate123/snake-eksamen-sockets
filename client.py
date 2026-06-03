@@ -3,11 +3,14 @@ import json
 import struct
 import pygame
 import threading
-import random
 
-game_state = {}
+game_state = { #dictionarys som sender game_state til serveren
+    "players": {},
+    "apple": None
+}
 
-def recv_exact(sock, length):
+
+def recv_exact(sock, length): #receive riktig mengde data 
     data = b""
     while len(data) < length:
         packet = sock.recv(length - len(data))
@@ -17,7 +20,7 @@ def recv_exact(sock, length):
     return data
 
 
-def receive():
+def receive(): #unpacker dataen 
     global game_state
 
     while True:
@@ -31,8 +34,6 @@ def receive():
 
             game_state = json.loads(data.decode())
 
-            print("STATE:", game_state)
-
         except Exception as e:
             print("recv error:", e)
             break
@@ -40,11 +41,10 @@ def receive():
 
 pygame.init()
 
-Client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+Client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #vi bruker ipv4 sockets og tcp sockets
 Client.connect(("192.168.20.74", 5555))
 
 threading.Thread(target=receive, daemon=True).start()
-
 
 screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
@@ -54,7 +54,7 @@ while True:
         if event.type == pygame.QUIT:
             exit()
 
-        if event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN: #endrer retning basert på hvilken key og pakker dataen til serveren
             if event.key == pygame.K_LEFT:
                 msg = {"command": "move", "dir": "LEFT"}
             elif event.key == pygame.K_RIGHT:
@@ -72,11 +72,21 @@ while True:
 
     screen.fill((255, 255, 255))
 
-    for pid, p in game_state.items():
+    players = game_state.get("players", {})
+    apple = game_state.get("apple", None)
+
+    for pid, p in players.items():
         pygame.draw.rect(
             screen,
             (0, 255, 0),
             pygame.Rect(p["x"], p["y"], 20, 20)
+        )
+
+    if apple:
+        pygame.draw.rect(
+            screen,
+            (255, 0, 0),
+            pygame.Rect(apple["x"], apple["y"], 20, 20)
         )
 
     pygame.display.flip()

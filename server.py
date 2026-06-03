@@ -3,12 +3,19 @@ import threading
 import struct
 import json
 import time
+import random
 
 Clients = []
 Players = {}
 ConnToID = {}
 
-def recv_exact(conn, length):
+APPLE = { #kalkulerer apple spawn poinnt 
+    "x": random.randint(0, 39) * 20,
+    "y": random.randint(0, 29) * 20
+}
+
+
+def recv_exact(conn, length): #recieve korrekt mengde data 
     data = b""
     while len(data) < length:
         packet = conn.recv(length - len(data))
@@ -18,20 +25,27 @@ def recv_exact(conn, length):
     return data
 
 
+def spawn_apple():
+    return {
+        "x": random.randint(0, 39) * 20,
+        "y": random.randint(0, 29) * 20
+    }
+
+
 def handle_clients(conn, addr):
     print("client connected", addr)
 
     player_id = str(addr)
     ConnToID[conn] = player_id
 
-    Players[player_id] = {
+    Players[player_id] = { #spawnposition 
         "x": 100,
         "y": 100,
         "dir": "RIGHT",
         "Alive": True
     }
 
-    while True:
+    while True: #reciever dataen om hvilken vei hver player skal bevege seg og hvis spilleren stopper å sende data til loopen så disconnecter spilleren
         try:
             header = recv_exact(conn, 4)
             if not header:
@@ -56,7 +70,9 @@ def handle_clients(conn, addr):
     conn.close()
 
 
-def game_loop():
+def game_loop(): #game_loop 
+    global APPLE
+
     while True:
         for player in Players.values():
             if player["dir"] == "UP":
@@ -68,12 +84,24 @@ def game_loop():
             elif player["dir"] == "RIGHT":
                 player["x"] += 20
 
-        state = json.dumps(Players).encode()
-        header = struct.pack("!I", len(state))
+            if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]: #sjekker om begge spillerne kan spise eple 
+                APPLE = spawn_apple()
+                print("apple eaten!")
+
+            player["x"] %= 800 #ikke gå ut av mappe
+            player["y"] %= 600
+
+        state = {
+            "players": Players,
+            "apple": APPLE
+        }
+
+        data = json.dumps(state).encode() #pakker dataen for å sende 
+        header = struct.pack("!I", len(data))
 
         for c in Clients:
             try:
-                c.sendall(header + state)
+                c.sendall(header + data)
             except:
                 pass
 
@@ -91,4 +119,4 @@ threading.Thread(target=game_loop, daemon=True).start()
 while True:
     conn, addr = server.accept()
     Clients.append(conn)
-    threading.Thread(target=handle_clients, args=(conn, addr)).start()
+    threading.Thread(target=handle_clients, args=(conn, addr), daemon=True).start()
