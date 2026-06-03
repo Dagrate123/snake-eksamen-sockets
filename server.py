@@ -43,7 +43,11 @@ def handle_clients(conn, addr):
         "y": 100,
         "dir": "RIGHT",
         "Alive": True,
+<<<<<<< HEAD
         "body": []
+=======
+        "body:": []
+>>>>>>> 4c011411f5ca3ae43d4efb28134a167977ad065f
     }
 
     while True: #reciever dataen om hvilken vei hver player skal bevege seg og hvis spilleren stopper å sende data til loopen så disconnecter spilleren
@@ -90,20 +94,19 @@ def game_loop():
             elif player["dir"] == "RIGHT":
                 player["x"] += 20
 
-            if "body" not in player:
-                player["body"] = []
-
             body = player["body"]
 
             if len(body) > 0:
                 body.insert(0, {"x": old_x, "y": old_y})
-                body.pop()
+                ate = False
 
             if player["x"] == APPLE["x"] and player["y"] == APPLE["y"]:
                 APPLE = spawn_apple()
                 print("apple eaten!")
+                ate = True
 
-                body.append({"x": old_x, "y": old_y})
+            if len(body) > 0 and not ate:
+                body.pop()
 
             player["x"] %= 800
             player["y"] %= 600
